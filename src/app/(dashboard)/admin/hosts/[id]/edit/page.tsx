@@ -20,6 +20,13 @@ export default async function EditHostPage({ params }: Props) {
     where: {
       id: params.id,
     },
+    select: {
+      id: true,
+      name: true,
+      url: true,
+      entranceCode: true,
+      username: true,
+    },
   })
 
   if (!host) {

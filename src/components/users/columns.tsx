@@ -16,6 +16,7 @@ interface User {
   name: string
   email: string
   createdAt: Date
+  role: string
 }
 
 export const columns: ColumnDef<User>[] = [
@@ -32,6 +33,14 @@ export const columns: ColumnDef<User>[] = [
     header: "创建时间",
     cell: ({ row }) => {
       return new Date(row.getValue("createdAt")).toLocaleDateString()
+    },
+  },
+  {
+    accessorKey: "role",
+    header: "用户类型",
+    cell: ({ row }) => {
+      const role = row.getValue("role") as string
+      return role === "ADMIN" ? "管理员" : "普通用户"
     },
   },
   {

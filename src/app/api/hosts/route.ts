@@ -5,8 +5,8 @@ import { z } from "zod"
 
 const hostSchema = z.object({
   name: z.string().min(1),
-  address: z.string().min(1),
-  port: z.number().min(1),
+  url: z.string().min(1),
+  entranceCode: z.string().min(1),
   username: z.string().min(1),
   password: z.string().min(1),
 })
@@ -24,8 +24,8 @@ export async function POST(req: Request) {
     const host = await prisma.host.create({
       data: {
         name: data.name,
-        address: data.address,
-        port: data.port,
+        url: data.url,
+        entranceCode: data.entranceCode,
         username: data.username,
         password: data.password,
       },
@@ -78,8 +78,8 @@ export async function GET(req: Request) {
       select: {
         id: true,
         name: true,
-        address: true,
-        port: true,
+        url: true,
+        entranceCode: true,
         username: true,
       },
     })

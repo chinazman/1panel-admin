@@ -5,8 +5,8 @@ import { ColumnDef } from "@tanstack/react-table"
 type Host = {
   id: string
   name: string
-  address: string
-  port: number
+  url: string
+  entranceCode: string
   username: string
 }
 
@@ -16,12 +16,12 @@ export const columns: ColumnDef<Host>[] = [
     header: "主机名称",
   },
   {
-    accessorKey: "address",
+    accessorKey: "url",
     header: "地址",
   },
   {
-    accessorKey: "port",
-    header: "端口",
+    accessorKey: "entranceCode",
+    header: "安全入口",
   },
   {
     accessorKey: "username",

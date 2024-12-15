@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Host } from "@/lib/types"
 import { MoreHorizontal } from "lucide-react"
 import {
   DropdownMenu,
@@ -12,18 +11,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+type Host = {
+  id: string
+  name: string
+  url: string
+  entranceCode: string
+  username: string
+}
+
 export const columns: ColumnDef<Host>[] = [
   {
     accessorKey: "name",
     header: "主机名称",
   },
   {
-    accessorKey: "address",
+    accessorKey: "url",
     header: "地址",
   },
   {
-    accessorKey: "port",
-    header: "端口",
+    accessorKey: "entranceCode",
+    header: "安全入口",
   },
   {
     accessorKey: "username",

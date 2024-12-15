@@ -1,32 +1,17 @@
 import { getSession } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { DataTable } from "@/components/hosts/data-table"
-import { columns } from "@/components/hosts/columns"
+import { redirect } from "next/navigation"
 
 export default async function HomePage() {
   const session = await getSession()
   
-  const hosts = await prisma.host.findMany({
-    where: {
-      users: {
-        some: {
-          userId: session?.id
-        }
-      }
-    },
-    select: {
-      id: true,
-      name: true,
-      address: true,
-      port: true,
-      username: true,
-    }
-  })
+  if (!session) {
+    redirect("/login")
+  }
 
-  return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold">主机列表</h1>
-      <DataTable columns={columns} data={hosts} />
-    </div>
-  )
+  // 根据用户角色重定向到对应页面
+  if (session.role === "ADMIN") {
+    redirect("/admin/hosts")  // 管理员重定向到主机管理页面
+  } else {
+    redirect("/my-hosts")     // 普通用户重定向到我的主机页面
+  }
 } 

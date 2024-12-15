@@ -21,8 +21,8 @@ model User {
 model Host {
   id        String   @id @default(cuid())
   name      String
-  address   String
-  port      Int
+  url       String
+  entranceCode String
   username  String
   password  String
   createdAt DateTime @default(now())

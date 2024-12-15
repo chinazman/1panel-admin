@@ -15,31 +15,39 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { User } from "@/lib/types"
 
+const userSchema = z.object({
+  name: z.string().min(1, "请输入用户名"),
+  email: z.string().email("请输入有效的邮箱地址"),
+  password: z.string().min(6, "密码至少需要6个字符").optional(),
+  role: z.enum(["USER", "ADMIN"]),
+}).refine((data) => {
+  if (!data.password && !user) {
+    return false
+  }
+  return true
+}, {
+  message: "请输入密码",
+  path: ["password"]
+})
+
+type UserInput = z.infer<typeof userSchema>
+
 interface UserFormProps {
-  user?: Pick<User, "id" | "name" | "email">
+  user?: Pick<User, "id" | "name" | "email" | "role">
 }
 
 export function UserForm({ user }: UserFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-
-  const userSchema = z.object({
-    name: z.string().min(1, "请输入用户名"),
-    email: z.string().email("请输入有效的邮箱地址"),
-    password: z.string().min(6, "密码至少需要6个字符").optional(),
-  }).refine((data) => {
-    if (!data.password && !user) {
-      return false
-    }
-    return true
-  }, {
-    message: "请输入密码",
-    path: ["password"]
-  })
-
-  type UserInput = z.infer<typeof userSchema>
 
   const form = useForm<UserInput>({
     resolver: zodResolver(userSchema),
@@ -47,7 +55,10 @@ export function UserForm({ user }: UserFormProps) {
       name: user.name,
       email: user.email,
       password: "",
-    } : undefined,
+      role: user.role as "USER" | "ADMIN",
+    } : {
+      role: "USER", // 默认为普通用户
+    },
   })
 
   async function onSubmit(data: UserInput) {
@@ -114,6 +125,30 @@ export function UserForm({ user }: UserFormProps) {
               <FormControl>
                 <Input type="password" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="role"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>用户类型</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择用户类型" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="USER">普通用户</SelectItem>
+                  <SelectItem value="ADMIN">管理员</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

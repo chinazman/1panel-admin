@@ -5,8 +5,8 @@ import { z } from "zod"
 
 const hostSchema = z.object({
   name: z.string().min(1),
-  address: z.string().min(1),
-  port: z.number().min(1),
+  url: z.string().min(1),
+  entranceCode: z.string().min(1),
   username: z.string().min(1),
   password: z.string().optional(),
 })
@@ -26,8 +26,8 @@ export async function PUT(
 
     const updateData = {
       name: data.name,
-      address: data.address,
-      port: data.port,
+      url: data.url,
+      entranceCode: data.entranceCode,
       username: data.username,
       ...(data.password ? { password: data.password } : {}),
     }

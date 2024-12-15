@@ -10,8 +10,8 @@ export interface User {
 export interface Host {
   id: string
   name: string
-  address: string
-  port: number
+  url: string
+  entranceCode: string
   username: string
   password?: string
   createdAt?: Date

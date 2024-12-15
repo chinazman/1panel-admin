@@ -19,10 +19,10 @@ import { Host } from "@/lib/types"
 
 const hostSchema = z.object({
   name: z.string().min(1, "请输入主机名称"),
-  address: z.string().min(1, "请输入主机地址"),
-  port: z.coerce.number().min(1, "请输入有效的端口号"),
+  url: z.string().min(1, "请输入主机地址"),
+  entranceCode: z.string().min(1, "请输入安全入口"),
   username: z.string().min(1, "请输入用户名"),
-  password: z.string().min(1, "请输入密码"),
+  password: z.string().min(1, "请输入密码").optional(),
 })
 
 type HostInput = z.infer<typeof hostSchema>
@@ -39,8 +39,8 @@ export function HostForm({ host }: HostFormProps) {
     resolver: zodResolver(hostSchema),
     defaultValues: host ? {
       name: host.name,
-      address: host.address,
-      port: host.port,
+      url: host.url,
+      entranceCode: host.entranceCode,
       username: host.username,
       password: "",
     } : undefined,
@@ -90,7 +90,7 @@ export function HostForm({ host }: HostFormProps) {
         />
         <FormField
           control={form.control}
-          name="address"
+          name="url"
           render={({ field }) => (
             <FormItem>
               <FormLabel>地址</FormLabel>
@@ -103,12 +103,12 @@ export function HostForm({ host }: HostFormProps) {
         />
         <FormField
           control={form.control}
-          name="port"
+          name="entranceCode"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>端口</FormLabel>
+              <FormLabel>安全入口</FormLabel>
               <FormControl>
-                <Input type="number" {...field} />
+                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

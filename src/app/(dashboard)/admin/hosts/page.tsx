@@ -16,8 +16,8 @@ export default async function HostsPage() {
     select: {
       id: true,
       name: true,
-      address: true,
-      port: true,
+      url: true,
+      entranceCode: true,
       username: true,
     },
   })
