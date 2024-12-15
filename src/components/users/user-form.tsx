@@ -29,14 +29,6 @@ const userSchema = z.object({
   email: z.string().email("请输入有效的邮箱地址"),
   password: z.string().min(6, "密码至少需要6个字符").optional(),
   role: z.enum(["USER", "ADMIN"]),
-}).refine((data) => {
-  if (!data.password && !user) {
-    return false
-  }
-  return true
-}, {
-  message: "请输入密码",
-  path: ["password"]
 })
 
 type UserInput = z.infer<typeof userSchema>
@@ -49,8 +41,18 @@ export function UserForm({ user }: UserFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
+  const schema = userSchema.refine((data) => {
+    if (!data.password && !user) {
+      return false
+    }
+    return true
+  }, {
+    message: "请输入密码",
+    path: ["password"]
+  })
+
   const form = useForm<UserInput>({
-    resolver: zodResolver(userSchema),
+    resolver: zodResolver(schema),
     defaultValues: user ? {
       name: user.name,
       email: user.email,

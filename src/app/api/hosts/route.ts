@@ -5,6 +5,7 @@ import { z } from "zod"
 
 const hostSchema = z.object({
   name: z.string().min(1),
+  code: z.string().min(1),
   url: z.string().min(1),
   entranceCode: z.string().min(1),
   username: z.string().min(1),
@@ -24,6 +25,7 @@ export async function POST(req: Request) {
     const host = await prisma.host.create({
       data: {
         name: data.name,
+        code: data.code,
         url: data.url,
         entranceCode: data.entranceCode,
         username: data.username,
@@ -78,6 +80,7 @@ export async function GET(req: Request) {
       select: {
         id: true,
         name: true,
+        code: true,
         url: true,
         entranceCode: true,
         username: true,

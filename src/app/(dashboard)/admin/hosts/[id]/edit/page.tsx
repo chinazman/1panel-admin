@@ -23,6 +23,7 @@ export default async function EditHostPage({ params }: Props) {
     select: {
       id: true,
       name: true,
+      code: true,
       url: true,
       entranceCode: true,
       username: true,

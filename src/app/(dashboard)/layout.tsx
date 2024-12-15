@@ -16,13 +16,20 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b">
-        <div className="container flex h-16 items-center justify-between">
-          <MainNav />
-          <UserNav user={session} />
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex-1" />
+            <MainNav />
+            <div className="flex-1 flex justify-end">
+              <UserNav user={session} />
+            </div>
+          </div>
         </div>
       </header>
-      <main className="flex-1">
-        <div className="container py-6">{children}</div>
+      <main className="flex-1 py-6">
+        <div className="container max-w-6xl mx-auto px-4">
+          {children}
+        </div>
       </main>
     </div>
   )

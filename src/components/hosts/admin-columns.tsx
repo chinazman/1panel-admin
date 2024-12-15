@@ -14,6 +14,7 @@ import {
 type Host = {
   id: string
   name: string
+  code: string
   url: string
   entranceCode: string
   username: string
@@ -23,6 +24,10 @@ export const columns: ColumnDef<Host>[] = [
   {
     accessorKey: "name",
     header: "主机名称",
+  },
+  {
+    accessorKey: "code",
+    header: "主机编码",
   },
   {
     accessorKey: "url",

@@ -19,6 +19,7 @@ import { Host } from "@/lib/types"
 
 const hostSchema = z.object({
   name: z.string().min(1, "请输入主机名称"),
+  code: z.string().min(1, "请输入主机编码"),
   url: z.string().min(1, "请输入主机地址"),
   entranceCode: z.string().min(1, "请输入安全入口"),
   username: z.string().min(1, "请输入用户名"),
@@ -39,6 +40,7 @@ export function HostForm({ host }: HostFormProps) {
     resolver: zodResolver(hostSchema),
     defaultValues: host ? {
       name: host.name,
+      code: host.code,
       url: host.url,
       entranceCode: host.entranceCode,
       username: host.username,
@@ -81,6 +83,19 @@ export function HostForm({ host }: HostFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>主机名称</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>主机编码</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>

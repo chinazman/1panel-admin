@@ -20,10 +20,6 @@ const adminNavItems = [
 // 普通用户菜单项
 const userNavItems = [
   {
-    href: "/",
-    label: "主机列表",
-  },
-  {
     href: "/my-hosts",
     label: "我的主机",
   },

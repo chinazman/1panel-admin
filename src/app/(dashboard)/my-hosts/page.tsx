@@ -7,9 +7,7 @@ import { columns } from "@/components/my-hosts/columns"
 type Host = {
   id: string
   name: string
-  url: string
-  entranceCode: string
-  username: string
+  code: string
 }
 
 export default async function MyHostsPage() {
@@ -29,9 +27,7 @@ export default async function MyHostsPage() {
     select: {
       id: true,
       name: true,
-      url: true,
-      entranceCode: true,
-      username: true,
+      code: true,
     },
   })
 
