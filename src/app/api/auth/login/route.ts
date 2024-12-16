@@ -37,10 +37,10 @@ export async function POST(req: Request) {
     const token = await encrypt(session)
     
     // 创建响应
-    const response = NextResponse.json(session)
+    const response = NextResponse.json(session);
     
     // 设置 cookie
-    await cookies().set({
+    (await cookies()).set({
       name: "token",
       value: token,
       httpOnly: true,
