@@ -1,14 +1,13 @@
 "use client"
 
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-  getPaginationRowModel,
-  getFilteredRowModel,
 } from "@tanstack/react-table"
-
+import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -17,34 +16,80 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
+import { useCallback, useTransition } from "react"
+import { useDebounce } from "@/hooks/use-debounce"
 import { Button } from "@/components/ui/button"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { Host } from "./columns"
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+interface DataTableProps {
+  columns: ColumnDef<Host, unknown>[]
+  data: Host[]
+  pageCount: number
+  currentPage: number
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+  pageCount,
+  currentPage,
+}: DataTableProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [, startTransition] = useTransition()
+
+  const createQueryString = useCallback(
+    (params: Record<string, string | null>) => {
+      const newSearchParams = new URLSearchParams(searchParams?.toString())
+      
+      for (const [key, value] of Object.entries(params)) {
+        if (value === null) {
+          newSearchParams.delete(key)
+        } else {
+          newSearchParams.set(key, value)
+        }
+      }
+ 
+      return newSearchParams.toString()
+    },
+    [searchParams]
+  )
+
+  const debouncedCallback = useDebounce((value: string) => {
+    startTransition(() => {
+      const queryString = createQueryString({
+        q: value || null,
+        page: "1", // 重置到第一页
+      })
+      router.push(`?${queryString}`)
+    })
+  }, 500)
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      startTransition(() => {
+        const queryString = createQueryString({
+          page: page.toString(),
+        })
+        router.push(`?${queryString}`)
+      })
+    },
+    [createQueryString, router]
+  )
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
   })
 
   return (
     <div className="space-y-4">
       <Input
-        placeholder="搜索主机名称..."
-        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-        onChange={(event) =>
-          table.getColumn("name")?.setFilterValue(event.target.value)
-        }
+        placeholder="搜索主机名称、编码..."
+        defaultValue={searchParams?.get("q") ?? ""}
+        onChange={(event) => debouncedCallback(event.target.value)}
         className="max-w-sm"
       />
       <div className="rounded-md border">
@@ -99,18 +144,23 @@ export function DataTable<TData, TValue>({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage <= 1}
         >
+          <ChevronLeft className="h-4 w-4" />
           上一页
         </Button>
+        <div className="flex items-center justify-center text-sm font-medium">
+          第 {currentPage} 页 / 共 {pageCount} 页
+        </div>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage >= pageCount}
         >
           下一页
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

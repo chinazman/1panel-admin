@@ -8,24 +8,48 @@ import { columns } from "@/components/users/columns"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-export default async function UsersPage() {
+const ITEMS_PER_PAGE = 10
+
+interface Props {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function UsersPage({ searchParams }: Props) {
   const session = await getSession()
   if (session?.role !== "ADMIN") {
     redirect("/")
   }
 
-  const users = await prisma.user.findMany({
-    where: {
-      role: "USER",
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      createdAt: true,
-    },
-  })
+  const params = await searchParams
+  const q = typeof params.q === 'string' ? params.q : ''
+  const page = typeof params.page === 'string' ? parseInt(params.page) : 1
+  const skip = (page - 1) * ITEMS_PER_PAGE
+
+  const where = {
+    role: "USER",
+    OR: [
+      { name: { contains: q } },
+      { email: { contains: q } },
+    ],
+  }
+
+  const [total, users] = await Promise.all([
+    prisma.user.count({ where }),
+    prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
+      skip,
+      take: ITEMS_PER_PAGE,
+    }),
+  ])
+
+  const pageCount = Math.ceil(total / ITEMS_PER_PAGE)
 
   return (
     <div className="space-y-4">
@@ -35,7 +59,12 @@ export default async function UsersPage() {
           <Link href="/admin/users/new">新增用户</Link>
         </Button>
       </div>
-      <DataTable columns={columns} data={users} />
+      <DataTable 
+        columns={columns} 
+        data={users} 
+        pageCount={pageCount}
+        currentPage={page}
+      />
     </div>
   )
 } 

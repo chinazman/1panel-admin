@@ -23,7 +23,7 @@ const hostSchema = z.object({
   url: z.string().min(1, "请输入主机地址"),
   entranceCode: z.string().min(1, "请输入安全入口"),
   username: z.string().min(1, "请输入用户名"),
-  password: z.string().min(1, "请输入密码").optional(),
+  password: z.string().optional(),
 })
 
 type HostInput = z.infer<typeof hostSchema>
@@ -36,8 +36,19 @@ export function HostForm({ host }: HostFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
+  const schema = hostSchema.refine((data) => {
+    // 新增时密码必填，编辑时可选
+    if (!data.password && !host) {
+      return false
+    }
+    return true
+  }, {
+    message: "请输入密码",
+    path: ["password"]
+  })
+
   const form = useForm<HostInput>({
-    resolver: zodResolver(hostSchema),
+    resolver: zodResolver(schema),
     defaultValues: host ? {
       name: host.name,
       code: host.code,

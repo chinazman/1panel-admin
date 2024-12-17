@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 
-type Host = {
+export type Host = {
   id: string
   name: string
   code: string
