@@ -5,9 +5,7 @@ import { HostForm } from "@/components/hosts/host-form"
 import { notFound } from "next/navigation"
 
 interface Props {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 export default async function EditHostPage({ params }: Props) {
@@ -16,9 +14,11 @@ export default async function EditHostPage({ params }: Props) {
     redirect("/")
   }
 
+  const id = (await params).id
+
   const host = await prisma.host.findUnique({
     where: {
-      id: params.id,
+      id,
     },
     select: {
       id: true,

@@ -5,9 +5,7 @@ import { UserForm } from "@/components/users/user-form"
 import { notFound } from "next/navigation"
 
 interface Props {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 export default async function EditUserPage({ params }: Props) {
@@ -16,9 +14,11 @@ export default async function EditUserPage({ params }: Props) {
     redirect("/")
   }
 
+  const id = (await params).id
+
   const user = await prisma.user.findUnique({
     where: {
-      id: params.id,
+      id,
     },
     select: {
       id: true,

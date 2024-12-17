@@ -5,9 +5,7 @@ import { HostAuthForm } from "@/components/hosts/host-auth-form"
 import { notFound } from "next/navigation"
 
 interface Props {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 export default async function HostAuthPage({ params }: Props) {
@@ -16,9 +14,11 @@ export default async function HostAuthPage({ params }: Props) {
     redirect("/")
   }
 
+  const id = (await params).id
+
   const [host, users] = await Promise.all([
     prisma.host.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         users: {
           select: {
@@ -48,8 +48,8 @@ export default async function HostAuthPage({ params }: Props) {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-bold">主机授权 - {host.name}</h1>
-      <HostAuthForm 
-        hostId={host.id} 
+      <HostAuthForm
+        hostId={host.id}
         users={users}
         authorizedUserIds={authorizedUserIds}
       />

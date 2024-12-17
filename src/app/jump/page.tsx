@@ -1,9 +1,10 @@
 "use client"
 
+import { Suspense } from "react"
 import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
-export default function JumpPage() {
+function JumpContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -59,7 +60,7 @@ export default function JumpPage() {
     document.cookie = `psession=${sessionId}; path=/`
 
     // 跳转到主页
-    router.push("/")
+  //  router.push("/")
   }, [searchParams, router])
 
   return (
@@ -69,5 +70,20 @@ export default function JumpPage() {
         <p className="text-muted-foreground">请稍候</p>
       </div>
     </div>
+  )
+}
+
+export default function JumpPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">加载中...</h2>
+          <p className="text-muted-foreground">请稍候</p>
+        </div>
+      </div>
+    }>
+      <JumpContent />
+    </Suspense>
   )
 } 

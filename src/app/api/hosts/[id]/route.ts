@@ -14,7 +14,7 @@ const hostSchema = z.object({
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession()
@@ -22,6 +22,7 @@ export async function PUT(
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
+    const { id } = await params
     const body = await req.json()
     const data = hostSchema.parse(body)
 
@@ -36,7 +37,7 @@ export async function PUT(
 
     const host = await prisma.host.update({
       where: {
-        id: params.id,
+        id,
       },
       data: updateData,
     })
@@ -54,7 +55,7 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession()
@@ -62,9 +63,11 @@ export async function DELETE(
       return new NextResponse("Unauthorized", { status: 401 })
     }
 
+    const { id } = await params
+
     await prisma.host.delete({
       where: {
-        id: params.id,
+        id,
       },
     })
 
