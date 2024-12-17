@@ -15,15 +15,17 @@ export async function GET(
     // 异步获取参数
     const { id } = await params
 
-    // 1. 获取主机信息,并验证权限
+    // 1. 获取主机信息
     const host = await prisma.host.findFirst({
       where: {
         id,
-        users: {
-          some: {
-            userId: session.id,
+        ...(session.role !== "ADMIN" ? {
+          users: {
+            some: {
+              userId: session.id,
+            },
           },
-        },
+        } : {}),
       },
     })
 

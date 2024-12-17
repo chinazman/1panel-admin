@@ -6,14 +6,14 @@ export async function middleware(request: NextRequest) {
   const session = await updateSession(request)
   
   // 公开路径
-  const publicPaths = ['/login', '/register']
+  const publicPaths = ['/login', '/register', '/jump']
   const isPublicPath = publicPaths.includes(request.nextUrl.pathname)
 
   if (!session && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (session && isPublicPath) {
+  if (session && isPublicPath && request.nextUrl.pathname !== '/jump') {
     return NextResponse.redirect(new URL('/', request.url))
   }
 

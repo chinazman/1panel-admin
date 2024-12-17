@@ -42,6 +42,22 @@ export const columns: ColumnDef<Host>[] = [
     header: "用户名",
   },
   {
+    id: "jump",
+    header: "操作",
+    cell: ({ row }) => {
+      const host = row.original
+      return (
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => handleJump(host.id)}
+        >
+          跳转
+        </Button>
+      )
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
       const host = row.original
@@ -72,6 +88,15 @@ export const columns: ColumnDef<Host>[] = [
     },
   },
 ]
+
+async function handleJump(id: string) {
+  try {
+    window.open(`/api/hosts/${id}/jump`, '_blank')
+  } catch (error) {
+    console.error("跳转失败:", error)
+    alert("跳转失败") 
+  }
+}
 
 async function handleDelete(id: string) {
   if (!confirm("确定要删除这个主机吗？")) {

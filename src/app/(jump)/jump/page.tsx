@@ -60,7 +60,7 @@ function JumpContent() {
     document.cookie = `psession=${sessionId}; path=/`
 
     // 跳转到主页
-  //  router.push("/")
+    router.push("/")
   }, [searchParams, router])
 
   return (
