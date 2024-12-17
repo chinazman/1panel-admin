@@ -28,7 +28,7 @@ async function main() {
       createdCount++
     } catch (error) {
       // 如果是唯一约束错误（邮箱已存在），则跳过
-      if (error.code === 'P2002') {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
         console.log(`跳过已存在的用户: ${user.email}`)
         continue
       }
