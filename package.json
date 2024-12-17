@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "create-admin": "tsx src/scripts/create-admin.ts",
+    "create-test-users": "tsx src/scripts/create-test-users.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -31,6 +33,7 @@
     "react-hook-form": "^7.54.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.19.2",
     "zod": "^3.24.1"
   },
   "devDependencies": {
