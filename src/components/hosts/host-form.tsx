@@ -18,11 +18,12 @@ import { Input } from "@/components/ui/input"
 import { Host } from "@/lib/types"
 
 const hostSchema = z.object({
-  name: z.string().min(1, "请输入主机名称"),
-  code: z.string().min(1, "请输入主机编码"),
-  url: z.string().min(1, "请输入主机地址"),
-  entranceCode: z.string().min(1, "请输入安全入口"),
-  username: z.string().min(1, "请输入用户名"),
+  name: z.string().min(1, "名称不能为空"),
+  code: z.string().min(1, "编码不能为空")
+    .regex(/^[a-zA-Z0-9-_]+$/, "编码只能包含字母、数字、横线和下划线"),
+  url: z.string().min(1, "地址不能为空"),
+  entranceCode: z.string().min(1, "安全入口不能为空"),
+  username: z.string().min(1, "用户名不能为空"),
   password: z.string().optional(),
 })
 
@@ -72,7 +73,15 @@ export function HostForm({ host }: HostFormProps) {
       })
 
       if (!response.ok) {
-        throw new Error(host ? "更新失败" : "添加失败")
+        const result = await response.json()
+        if (result.error === "主机编码已存在") {
+          form.setError("code", {
+            type: "manual",
+            message: "该主机编码已被使用"
+          })
+          return
+        }
+        throw new Error(result.error || "操作失败")
       }
 
       router.push("/admin/hosts")
@@ -108,7 +117,7 @@ export function HostForm({ host }: HostFormProps) {
             <FormItem>
               <FormLabel>主机编码</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} placeholder="请输入主机编码" />
               </FormControl>
               <FormMessage />
             </FormItem>

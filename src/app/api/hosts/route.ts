@@ -4,12 +4,13 @@ import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 
 const hostSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().min(1),
-  url: z.string().min(1),
-  entranceCode: z.string().min(1),
-  username: z.string().min(1),
-  password: z.string().min(1),
+  name: z.string().min(1, "名称不能为空"),
+  code: z.string().min(1, "编码不能为空")
+    .regex(/^[a-zA-Z0-9-_]+$/, "编码只能包含字母、数字、横线和下划线"),
+  url: z.string().min(1, "地址不能为空"),
+  entranceCode: z.string().min(1, "安全入口不能为空"),
+  username: z.string().min(1, "用户名不能为空"),
+  password: z.string().min(1, "密码不能为空"),
 })
 
 export async function POST(req: Request) {
@@ -21,6 +22,18 @@ export async function POST(req: Request) {
 
     const body = await req.json()
     const data = hostSchema.parse(body)
+
+    // 检查 code 是否已存在
+    const existingHost = await prisma.host.findUnique({
+      where: { code: data.code }
+    })
+
+    if (existingHost) {
+      return NextResponse.json(
+        { error: "主机编码已存在" },
+        { status: 400 }
+      )
+    }
 
     const host = await prisma.host.create({
       data: {
@@ -36,11 +49,17 @@ export async function POST(req: Request) {
     return NextResponse.json(host)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return new NextResponse("Invalid request data", { status: 422 })
+      return NextResponse.json(
+        { error: "数据验证失败", details: error.errors },
+        { status: 422 }
+      )
     }
 
     console.error("创建主机失败:", error)
-    return new NextResponse("Internal Server Error", { status: 500 })
+    return NextResponse.json(
+      { error: "创建失败" },
+      { status: 500 }
+    )
   }
 }
 
