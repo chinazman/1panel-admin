@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  1panel-admin:
+    image: 1panel-admin
+    container_name: 1panel-admin
+    ports:
+      - "9230:3000"
+    volumes:
+      - ./db:/app/db
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped 
