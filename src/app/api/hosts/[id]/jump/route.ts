@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getHostSessionId } from "@/lib/host"
 
 export async function GET(
   req: NextRequest,
@@ -33,64 +34,22 @@ export async function GET(
       return new NextResponse("主机不存在或无权访问", { status: 404 })
     }
 
-    // 2. 获取当前域名
-    const currentHost = req.headers.get("host") || ""
+    // 2. 获取当前域名和协议 - 从环境变量获取
+    const currentHost = process.env.PANEL_DOMAIN || req.headers.get("host") || ""
+    const protocol = process.env.PANEL_PROTOCOL || "https"
 
-    // 3. 拼接登录地址
-    const loginUrl = `${host.url}/api/v1/auth/login`
-    console.log('登录地址:', loginUrl)
+    // 3. 获取 sessionId (使用新的公共方法)
+    const sessionId = await getHostSessionId(host.id)
 
-    // 4. 发送登录请求
-    const loginResponse = await fetch(loginUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Entrancecode": Buffer.from(host.entranceCode).toString("base64"),
-      },
-      body: JSON.stringify({
-        name: host.username,
-        password: host.password,
-        ignoreCaptcha: true,
-        captcha: "",
-        captchaID: Math.random().toString(36).substring(7),
-        authMethod: "session",
-        language: "zh",
-      }),
-    })
-
-    const loginData = await loginResponse.json()
-
-    // 5. 处理登录响应
-    if (loginData.code !== 200) {
-      return new NextResponse(loginData.message || "登录失败", { status: 400 })
-    }
-
-    // 获取psession cookie
-    const cookies = loginResponse.headers.getSetCookie()
-    const psessionCookie = cookies.find(cookie => cookie.startsWith("psession="))
-    
-    if (!psessionCookie) {
-      return new NextResponse("登录失败:未获取到会话信息", { status: 400 })
-    }
-
-    // 从psessionCookie中提取sessionId
-    const sessionId = psessionCookie.match(/psession=([^;]+)/)?.[1]
-    if (!sessionId) {
-      return new NextResponse("无法获取会话ID", { status: 400 })
-    }
-
-    // 构建跳转URL
+    // 4. 构建跳转URL
     const jumpUrl = `${host.code}.${currentHost}/1panel-admin/jump.html?entrance=${encodeURIComponent(host.entranceCode)}&hostName=${encodeURIComponent(host.name)}&sessionId=${encodeURIComponent(sessionId)}`
-    console.log('跳转地址:', jumpUrl)
-
-    // 返回重定向响应
-    //const protocol = new URL(host.url).protocol
-    const response = NextResponse.redirect(`https://${jumpUrl}`)
     
+    // 5. 返回重定向响应
+    const response = NextResponse.redirect(`${protocol}://${jumpUrl}`)
     return response
 
   } catch (error) {
     console.error("跳转失败:", error)
-    return new NextResponse("跳转失败", { status: 500 })
+    return new NextResponse(error instanceof Error ? error.message : "跳转失败", { status: 500 })
   }
 } 
