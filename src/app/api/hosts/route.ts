@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { refreshNginxConfig } from "@/lib/nginx"
 
 const hostSchema = z.object({
   name: z.string().min(1, "名称不能为空"),
@@ -45,6 +46,12 @@ export async function POST(req: Request) {
         password: data.password,
       },
     })
+
+    // 获取域名
+    const panelDomain = process.env.PANEL_DOMAIN || req.headers.get("host") || ""
+    
+    // 刷新 Nginx 配置
+    await refreshNginxConfig(panelDomain)
 
     return NextResponse.json(host)
   } catch (error) {

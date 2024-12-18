@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { refreshNginxConfig } from "@/lib/nginx"
 
 const hostSchema = z.object({
   name: z.string().min(1, "名称不能为空"),
@@ -60,6 +61,12 @@ export async function PUT(
       data: updateData,
     })
 
+    // 如果不是 main 主机,刷新 Nginx 配置
+    if (host.code !== "main") {
+      const panelDomain = process.env.PANEL_DOMAIN || req.headers.get("host") || ""
+      await refreshNginxConfig(panelDomain)
+    }
+
     return NextResponse.json(host)
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -89,11 +96,29 @@ export async function DELETE(
 
     const { id } = await params
 
+    // 获取主机信息
+    const host = await prisma.host.findUnique({
+      where: { id },
+    })
+
+    if (!host) {
+      return new NextResponse("主机不存在", { status: 404 })
+    }
+
+    // 不允许删除 main 主机
+    if (host.code === "main") {
+      return new NextResponse("不能删除主面板", { status: 400 })
+    }
+
     await prisma.host.delete({
       where: {
         id,
       },
     })
+
+    // 刷新 Nginx 配置
+    const panelDomain = process.env.PANEL_DOMAIN || req.headers.get("host") || ""
+    await refreshNginxConfig(panelDomain)
 
     return NextResponse.json({ success: true })
   } catch (error) {
