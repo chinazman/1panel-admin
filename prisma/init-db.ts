@@ -17,7 +17,20 @@ async function main() {
     },
   })
 
-  console.log({ admin })
+  const mainHost = await prisma.host.upsert({
+    where: { code: "main" },
+    update: {},
+    create: {
+      name: "主面板",
+      code: "main",
+      url: "http://localhost:8080",
+      entranceCode: "main",
+      username: "admin",
+      password: "admin123",
+    },
+  })
+
+  console.log({ admin, mainHost })
 }
 
 main()

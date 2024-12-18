@@ -8,8 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "create-test-users": "tsx src/scripts/create-test-users.ts",
-    "db:init": "prisma migrate dev --name init && tsx src/scripts/init-db.ts",
-    "db:reset": "prisma migrate reset"
+    "db:gen": "prisma generate",
+    "db:init": "prisma migrate dev --name init && tsx prisma/init-db.ts",
+    "db:deploy": "prisma migrate deploy && tsx prisma/init-db.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
