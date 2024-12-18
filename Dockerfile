@@ -36,11 +36,11 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 
 # 更新包索引并安装 OpenSSL
-#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
-#    apk add --no-cache openssl
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add --no-cache openssl
 
 # 设置淘宝镜像
-#RUN npm config set registry https://registry.npmmirror.com
+RUN npm config set registry https://registry.npmmirror.com
 
 
 ENV NODE_ENV=production
@@ -56,6 +56,9 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
+
+RUN npm install prisma && \
+    npm install @prisma/client
 
 # 初始化数据库的启动脚本
 COPY docker-entrypoint.sh /
