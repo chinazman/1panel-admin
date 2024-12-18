@@ -4,7 +4,7 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 # 更新包索引并安装 OpenSSL
-RUN apk update && \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
     apk add --no-cache openssl
 
 # 设置淘宝镜像
@@ -36,11 +36,11 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 
 # 更新包索引并安装 OpenSSL
-RUN apk update && \
-    apk add --no-cache openssl
+#RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+#    apk add --no-cache openssl
 
 # 设置淘宝镜像
-RUN npm config set registry https://registry.npmmirror.com
+#RUN npm config set registry https://registry.npmmirror.com
 
 
 ENV NODE_ENV=production
