@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 公开路径
-  const publicPaths = ['/login', '/register', '/jump']
+  const publicPaths = ['/login', '/register', '/1panel-admin/jump.html']
   const isPublicPath = publicPaths.includes(request.nextUrl.pathname)
 
   if (!session && !isPublicPath) {
