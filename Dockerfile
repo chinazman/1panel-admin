@@ -3,8 +3,14 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# 更新包索引并安装 OpenSSL
+RUN apk update && \
+    apk add --no-cache openssl
+
 # 设置淘宝镜像
 RUN npm config set registry https://registry.npmmirror.com
+
+
 
 # 复制 package.json 和 package-lock.json
 COPY package*.json ./
@@ -13,11 +19,13 @@ COPY prisma ./prisma/
 # 安装依赖
 RUN npm ci
 
+# 生成 Prisma 客户端
+RUN npm install prisma && \
+    npm install @prisma/client && \
+    npx prisma generate
+
 # 复制源代码
 COPY . .
-
-# 生成 Prisma 客户端
-RUN npx prisma generate
 
 # 构建应用
 RUN npm run build
@@ -26,6 +34,14 @@ RUN npm run build
 FROM node:18-alpine AS runner
 
 WORKDIR /app
+
+# 更新包索引并安装 OpenSSL
+RUN apk update && \
+    apk add --no-cache openssl
+
+# 设置淘宝镜像
+RUN npm config set registry https://registry.npmmirror.com
+
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED 1
@@ -45,6 +61,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 
+VOLUME ["/app/db"]
 # 暴露端口
 EXPOSE 3000
 
