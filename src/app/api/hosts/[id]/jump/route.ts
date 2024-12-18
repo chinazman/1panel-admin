@@ -80,12 +80,12 @@ export async function GET(
     }
 
     // 构建跳转URL
-    const jumpUrl = `${host.code}.${currentHost}/jump?entrance=${encodeURIComponent(host.entranceCode)}&hostName=${encodeURIComponent(host.name)}&sessionId=${encodeURIComponent(sessionId)}`
+    const jumpUrl = `${host.code}.${currentHost}/1panel-admin/jump.html?entrance=${encodeURIComponent(host.entranceCode)}&hostName=${encodeURIComponent(host.name)}&sessionId=${encodeURIComponent(sessionId)}`
     console.log('跳转地址:', jumpUrl)
 
     // 返回重定向响应
-    const protocol = new URL(host.url).protocol
-    const response = NextResponse.redirect(`${protocol}//${jumpUrl}`)
+    //const protocol = new URL(host.url).protocol
+    const response = NextResponse.redirect(`https://${jumpUrl}`)
     
     return response
 

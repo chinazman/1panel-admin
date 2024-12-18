@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跳转中...</title>
+    <script>
+        function handleJump() {
+            // 获取 URL 参数
+            const params = new URLSearchParams(window.location.search);
+            const entrance = params.get('entrance');
+            const hostName = params.get('hostName');
+            const sessionId = params.get('sessionId');
+
+            if (!entrance || !hostName || !sessionId) {
+                console.error('缺少必要的参数');
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+
+            // 设置 GlobalState
+            const globalState = {
+                isLoading: false,
+                loadingText: "",
+                isLogin: true,
+                entrance: entrance,
+                language: "zh",
+                themeConfig: {
+                    panelName: hostName,
+                    primary: "#005EEB",
+                    theme: "auto",
+                    isGold: false,
+                    footer: true,
+                    title: "",
+                    logo: "",
+                    logoWithText: "",
+                    favicon: ""
+                },
+                openMenuTabs: false,
+                isFullScreen: false,
+                isOnRestart: false,
+                agreeLicense: true,
+                hasNewVersion: true,
+                ignoreCaptcha: true,
+                device: 1,
+                lastFilePath: "",
+                currentDB: "",
+                currentRedisDB: "",
+                showEntranceWarn: true,
+                defaultNetwork: "all",
+                isProductPro: false,
+                productProExpires: 0,
+                errStatus: ""
+            };
+
+            // 保存到 localStorage
+            localStorage.setItem("GlobalState", JSON.stringify(globalState));
+
+            // 设置 cookie
+            document.cookie = `psession=${sessionId}; path=/`;
+
+            // 跳转到主页
+           // window.location.href = "/";
+        }
+
+        // 页面加载完成后执行
+        window.onload = handleJump;
+    </script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+        }
+        .title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .subtitle {
+            color: #666;
+        }
+        #error {
+            display: none;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading">
+            <h2 class="title">正在跳转...</h2>
+            <p class="subtitle">请稍候</p>
+        </div>
+        <div id="error">
+            <h2 class="title">跳转失败</h2>
+            <p class="subtitle">缺少必要的参数</p>
+        </div>
+    </div>
+</body>
+</html> 
