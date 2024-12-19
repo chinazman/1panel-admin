@@ -27,8 +27,8 @@ import { User } from "@/lib/types"
 const userSchema = z.object({
   name: z.string().min(1, "请输入用户名"),
   email: z.string().email("请输入有效的邮箱地址"),
-  password: z.string().min(6, "密码至少需要6个字符").optional(),
-  role: z.enum(["USER", "ADMIN"]),
+  password: z.string().transform(val => val === "" ? undefined : val).pipe(z.string().min(6, "密码至少需要6个字符").optional()),
+  role: z.enum(["USER", "ADMIN"]).default("USER"),
 })
 
 type UserInput = z.infer<typeof userSchema>
@@ -40,16 +40,7 @@ interface UserFormProps {
 export function UserForm({ user }: UserFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-
-  const schema = userSchema.refine((data) => {
-    if (!data.password && !user) {
-      return false
-    }
-    return true
-  }, {
-    message: "请输入密码",
-    path: ["password"]
-  })
+  const schema = userSchema
 
   const form = useForm<UserInput>({
     resolver: zodResolver(schema),
@@ -72,7 +63,10 @@ export function UserForm({ user }: UserFormProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          role: data.role,
+        }),
       })
 
       if (!response.ok) {

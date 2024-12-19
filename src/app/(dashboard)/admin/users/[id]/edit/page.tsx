@@ -26,6 +26,7 @@ export default async function EditUserPage({ params }: Props) {
       id: true,
       name: true,
       email: true,
+      role: true,
     },
   })
 
@@ -36,7 +37,7 @@ export default async function EditUserPage({ params }: Props) {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-bold">编辑用户</h1>
-      <UserForm user={{...user, role: "USER"}} />
+      <UserForm user={user} />
     </div>
   )
 }

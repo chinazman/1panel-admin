@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs"
 const profileSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
-  currentPassword: z.string().min(1),
+  currentPassword: z.string().optional(),
   newPassword: z.string().min(6).optional(),
   confirmPassword: z.string().optional(),
 })
@@ -31,13 +31,20 @@ export async function PUT(req: Request) {
       return new NextResponse("User not found", { status: 404 })
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      data.currentPassword,
-      user.password
-    )
+    // 只在修改密码时验证当前密码
+    if (data.newPassword) {
+      if (!data.currentPassword) {
+        return new NextResponse("修改密码时需要验证当前密码", { status: 400 })
+      }
 
-    if (!isPasswordValid) {
-      return new NextResponse("当前密码错误", { status: 400 })
+      const isPasswordValid = await bcrypt.compare(
+        data.currentPassword,
+        user.password
+      )
+
+      if (!isPasswordValid) {
+        return new NextResponse("当前密码错误", { status: 400 })
+      }
     }
 
     // 检查邮箱是否被其他用户使用

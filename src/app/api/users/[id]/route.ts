@@ -8,6 +8,7 @@ const userSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6).optional(),
+  role: z.enum(["USER", "ADMIN"]),
 })
 
 export async function PUT(
@@ -41,6 +42,7 @@ export async function PUT(
     const updateData = {
       name: data.name,
       email: data.email,
+      role: data.role,
       ...(data.password ? { password: await bcrypt.hash(data.password, 10) } : {}),
     }
 

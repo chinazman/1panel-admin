@@ -26,7 +26,6 @@ export default async function UsersPage({ searchParams }: Props) {
   const skip = (page - 1) * ITEMS_PER_PAGE
 
   const where = {
-    role: "USER",
     OR: [
       { name: { contains: q } },
       { email: { contains: q } },

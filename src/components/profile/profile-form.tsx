@@ -20,16 +20,21 @@ import { User } from "@/lib/types"
 const profileSchema = z.object({
   name: z.string().min(1, "请输入用户名"),
   email: z.string().email("请输入有效的邮箱地址"),
-  currentPassword: z.string().min(1, "请输入当前密码"),
-  newPassword: z.string().min(6, "新密码至少需要6个字符").optional(),
+  currentPassword: z.string().optional(),
+  newPassword: z.string().optional()
+    .transform(val => val === "" ? undefined : val)
+    .pipe(
+      z.string().min(6, "新密码至少需要6个字符").optional()
+    ),
   confirmPassword: z.string().optional(),
 }).refine((data) => {
-  if (data.newPassword && data.newPassword !== data.confirmPassword) {
-    return false
+  if (data.newPassword) {
+    if (!data.currentPassword) return false
+    if (data.newPassword !== data.confirmPassword) return false
   }
   return true
 }, {
-  message: "两次输入的密码不一致",
+  message: "如需修改密码，请填写当前密码并确保新密码输入一致",
   path: ["confirmPassword"],
 })
 
@@ -58,12 +63,19 @@ export function ProfileForm({ user }: ProfileFormProps) {
     setIsLoading(true)
 
     try {
+      const submitData = {
+        ...data,
+        currentPassword: data.newPassword ? data.currentPassword : undefined,
+        newPassword: data.newPassword || undefined,
+        confirmPassword: data.newPassword ? data.confirmPassword : undefined,
+      }
+
       const response = await fetch("/api/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(submitData),
       })
 
       if (!response.ok) {
