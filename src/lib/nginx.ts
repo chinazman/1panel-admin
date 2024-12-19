@@ -59,7 +59,8 @@ export async function refreshNginxConfig(panelDomain: string) {
 
     const searchData = (await searchResponse.json()) as SearchResponse
     if (searchData.code !== 200 || !searchData.data.items.length) {
-      throw new Error("未找到网站配置")
+      console.error(`查找网站配置失败: ${searchData.message || '未找到网站配置'}`)
+      return
     }
 
     const websiteId = searchData.data.items[0].id
@@ -73,7 +74,8 @@ export async function refreshNginxConfig(panelDomain: string) {
 
     const configData = (await configResponse.json()) as ConfigResponse
     if (configData.code !== 200) {
-      throw new Error("获取配置失败")
+      console.error(`获取配置失败: ${configData.message}`)
+      return
     }
 
     // 4. 获取所有主机信息
@@ -94,8 +96,9 @@ export async function refreshNginxConfig(panelDomain: string) {
       `    ${host.code}.${panelDomain} ${host.code};`
     ).join(" \n")
 
-    // 提取 server { 后面的内容
-    const serverConfig = configData.data.content.split("server {")[1] || ""
+    // 提取最后一个 server { 后面的内容
+    const parts = configData.data.content.split("server {")
+    const serverConfig = parts[parts.length - 1] || ""
 
     const newContent = `${upstreamConfigs}
 
@@ -107,7 +110,6 @@ ${mapConfigs}
 }
 
 server {${serverConfig}`
-
     // 6. 更新配置
     const updateResponse = await fetch(`${api_url}/api/v1/websites/nginx/update`, {
       method: "POST",
@@ -123,11 +125,12 @@ server {${serverConfig}`
 
     const updateData = (await updateResponse.json()) as UpdateResponse
     if (updateData.code !== 200) {
-      throw new Error("更新配置失败")
+      console.error(`更新配置失败: ${updateData.message}`)
+      return
     }
 
   } catch (error) {
     console.error("刷新 Nginx 配置失败:", error)
-    throw error
+    // 不再抛出错误
   }
 } 
