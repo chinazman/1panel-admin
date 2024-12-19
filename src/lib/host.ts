@@ -10,7 +10,8 @@ export async function getHostSessionId(hostId: string): Promise<string> {
   // 检查缓存
   const cachedSessionId = sessionCache.get(hostId)
   if (cachedSessionId) {
-    return cachedSessionId
+    //先不缓存了
+    // return cachedSessionId
   }
 
   // 获取主机信息
