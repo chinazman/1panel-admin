@@ -22,7 +22,10 @@ RUN npm ci
 # 生成 Prisma 客户端
 RUN npm install prisma && \
     npm install @prisma/client && \
-    npx prisma generate
+    mkdir db && \
+    npx prisma migrate dev --name init && \
+    npx tsx prisma/init-db.ts && \
+    mv ./db/*.db ./prisma/
 
 # 复制源代码
 COPY . .
@@ -56,9 +59,6 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
-
-RUN npm install prisma && \
-    npm install @prisma/client
 
 # 初始化数据库的启动脚本
 COPY docker-entrypoint.sh /
