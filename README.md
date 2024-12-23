@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 1Panel Admin
 
-## Getting Started
+1Panel Admin 是一个用于管理多个1Panel控制面板，并且支持多用户授权。
+本项目基于 Next.js 15开发，使用 Tailwind CSS 进行样式设计, nodejs版本18。
+全部代码都是有Cursor AI 生成的，可能存在一些问题，欢迎大家提交PR。
 
-First, run the development server:
+## 二次开发
 
 ```bash
+# 初始化
+npm run db:deploy
+# 启动
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# docker 打包
+sh build.sh
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 安装前提条件
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 需要新增一个网站：`panel.yourdomain.com`，反向代理到1panel-admin服务;
+- 需要新增一个网站`main.panel.yourdomain.com`,然后再加增泛域名`*.panel.yourdomain.com`；
+- 在main.panel网站下新增两个反向代理
+  - `/1panel-admin`指向1panel-admin服务
+  - `/`指向`http://$backend_server`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 安装
 
-## Learn More
+docker-compose.yml文件如下：
 
-To learn more about Next.js, take a look at the following resources:
+```yaml
+version: '3'
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+services:
+  1panel-admin:
+    image: chinazman/1panel-admin:latest
+    container_name: 1panel-admin
+    ports:
+      - "9230:3000"
+    volumes:
+      - ./db:/app/db
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped 
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# 安装
+docker compose up -d
+# 升级的话需要执行更新脚本
+docker compose run --rm --entrypoint "" 1panel-admin sh -c "npm install prisma @prisma/client && npx prisma migrate deploy"
+```
