@@ -47,7 +47,7 @@ RUN npm config set registry https://registry.npmmirror.com
 
 
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # 创建数据库目录
 RUN mkdir -p /app/db
@@ -68,8 +68,8 @@ VOLUME ["/app/db"]
 # 暴露端口
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # 使用启动脚本
 ENTRYPOINT ["/docker-entrypoint.sh"]
