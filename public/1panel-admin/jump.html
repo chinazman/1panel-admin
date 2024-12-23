@@ -35,13 +35,14 @@
                     title: "",
                     logo: "",
                     logoWithText: "",
+                    themeColor: "",
                     favicon: ""
                 },
                 openMenuTabs: false,
                 isFullScreen: false,
                 isOnRestart: false,
                 agreeLicense: true,
-                hasNewVersion: true,
+                hasNewVersion: false,
                 ignoreCaptcha: true,
                 device: 1,
                 lastFilePath: "",
@@ -51,11 +52,14 @@
                 defaultNetwork: "all",
                 isProductPro: false,
                 productProExpires: 0,
+                isIntl: false,
+                isTrial: false,
                 errStatus: ""
             };
 
             // 保存到 localStorage
             localStorage.setItem("GlobalState", JSON.stringify(globalState));
+            localStorage.setItem("lang", "zh");
 
             // 设置 cookie
             document.cookie = `psession=${sessionId}; path=/`;
