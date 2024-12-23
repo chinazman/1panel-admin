@@ -38,7 +38,7 @@ export async function refreshNginxConfig(panelDomain: string) {
     }
 
     const api_url = mainHost.url
-    const sessionId = await getHostSessionId(mainHost.id)
+    let sessionId = await getHostSessionId(mainHost.id)
 
     // 2. 查找网站 ID
     const searchResponse = await fetch(`${api_url}/api/v1/websites/search`, {
@@ -57,7 +57,28 @@ export async function refreshNginxConfig(panelDomain: string) {
       })
     })
 
-    const searchData = (await searchResponse.json()) as SearchResponse
+    let searchData = (await searchResponse.json()) as SearchResponse
+    if (searchData.code === 401) {
+      // 重新获取没有缓存的 sessionId
+      sessionId = await getHostSessionId(mainHost.id, false)
+      // 重新发起请求
+      const retryResponse = await fetch(`${api_url}/api/v1/websites/search`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", 
+          "Cookie": `psession=${sessionId}`
+        },
+        body: JSON.stringify({
+          name: `main.${panelDomain}`,
+          page: 1,
+          pageSize: 10,
+          orderBy: "created_at",
+          order: "null",
+          websiteGroupId: 0
+        })
+      })
+      searchData = (await retryResponse.json()) as SearchResponse
+    }
     if (searchData.code !== 200 || !searchData.data.items.length) {
       console.error(`查找网站配置失败: ${searchData.message || '未找到网站配置'}`)
       return

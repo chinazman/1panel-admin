@@ -39,7 +39,7 @@ export async function GET(
     const protocol = process.env.PANEL_PROTOCOL || "https"
 
     // 3. 获取 sessionId (使用新的公共方法)
-    const sessionId = await getHostSessionId(host.id)
+    const sessionId = await getHostSessionId(host.id, false)
 
     // 4. 构建跳转URL
     const jumpUrl = `${host.code}.${currentHost}/1panel-admin/jump.html?entrance=${encodeURIComponent(host.entranceCode)}&hostName=${encodeURIComponent(host.name)}&sessionId=${encodeURIComponent(sessionId)}`

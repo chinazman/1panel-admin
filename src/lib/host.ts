@@ -6,12 +6,13 @@ interface LoginResponse {
   message?: string
 }
 
-export async function getHostSessionId(hostId: string): Promise<string> {
+export async function getHostSessionId(hostId: string, useCache = true): Promise<string> {
   // 检查缓存
-  const cachedSessionId = sessionCache.get(hostId)
-  if (cachedSessionId) {
-    //先不缓存了
-    // return cachedSessionId
+  if (useCache) {
+    const cachedSessionId = sessionCache.get(hostId)
+    if (cachedSessionId) {
+      return cachedSessionId
+    }
   }
 
   // 获取主机信息
