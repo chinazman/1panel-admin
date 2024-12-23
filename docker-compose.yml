@@ -2,7 +2,7 @@ version: '3'
 
 services:
   1panel-admin:
-    image: 1panel-admin
+    image: chinazman/1panel-admin:latest
     container_name: 1panel-admin
     ports:
       - "9230:3000"

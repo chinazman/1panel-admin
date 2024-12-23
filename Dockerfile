@@ -23,7 +23,7 @@ RUN npm ci
 RUN npm install prisma && \
     npm install @prisma/client && \
     mkdir db && \
-    npx prisma migrate dev --name init && \
+    npx prisma migrate deploy && \
     npx tsx prisma/init-db.ts && \
     mv ./db/*.db ./prisma/
 
