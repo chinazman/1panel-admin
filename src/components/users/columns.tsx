@@ -47,6 +47,7 @@ export const columns: ColumnDef<User>[] = [
     id: "actions",
     cell: ({ row }) => {
       const user = row.original
+      const isAdmin = user.role === "ADMIN"
 
       return (
         <DropdownMenu>
@@ -59,6 +60,11 @@ export const columns: ColumnDef<User>[] = [
             <DropdownMenuItem asChild>
               <Link href={`/admin/users/${user.id}/edit`}>编辑</Link>
             </DropdownMenuItem>
+            {!isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link href={`/admin/users/${user.id}/auth`}>授权</Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               className="text-red-600"
               onClick={() => handleDelete(user.id)}

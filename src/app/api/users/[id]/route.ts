@@ -91,13 +91,6 @@ export async function DELETE(
       }
     }
 
-    // 删除用户的主机授权
-    await prisma.hostUser.deleteMany({
-      where: {
-        userId: id,
-      },
-    })
-
     // 删除用户
     await prisma.user.delete({
       where: {
