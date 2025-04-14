@@ -12,6 +12,7 @@ const hostSchema = z.object({
   entranceCode: z.string().min(1, "安全入口不能为空"),
   username: z.string().min(1, "用户名不能为空"),
   password: z.string().optional(),
+  publicKey: z.string().optional(),
 })
 
 export async function PUT(
@@ -37,6 +38,7 @@ export async function PUT(
       url: data.url,
       entranceCode: data.entranceCode,
       username: data.username,
+      publicKey: data.publicKey,
       ...(data.password ? { password: data.password } : {}),
     }
     // 检查修改后的 code 是否与其他主机冲突

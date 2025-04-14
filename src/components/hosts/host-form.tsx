@@ -25,6 +25,7 @@ const hostSchema = z.object({
   entranceCode: z.string().min(1, "安全入口不能为空"),
   username: z.string().min(1, "用户名不能为空"),
   password: z.string().optional(),
+  publicKey: z.string().optional(),
 })
 
 type HostInput = z.infer<typeof hostSchema>
@@ -57,6 +58,7 @@ export function HostForm({ host }: HostFormProps) {
       entranceCode: host.entranceCode,
       username: host.username,
       password: "",
+      publicKey: host.publicKey || "",
     } : undefined,
   })
 
@@ -169,7 +171,20 @@ export function HostForm({ host }: HostFormProps) {
             <FormItem>
               <FormLabel>密码</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Input type="password" {...field}  placeholder="没有修改就不要填" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="publicKey"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>公钥</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="请输入公钥（可选）" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -191,4 +206,4 @@ export function HostForm({ host }: HostFormProps) {
       </form>
     </Form>
   )
-} 
+}

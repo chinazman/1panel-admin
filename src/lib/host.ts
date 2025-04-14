@@ -1,6 +1,58 @@
 import { prisma } from "./prisma"
 import { sessionCache } from "./cache"
+import JSEncrypt from 'jsencrypt';
+import CryptoJS from 'crypto-js';
 
+function rsaEncrypt(data: string, publicKey: string) {
+    if (!data) {
+        return data;
+    }
+    const jsEncrypt = new JSEncrypt();
+    jsEncrypt.setPublicKey(publicKey);
+    return jsEncrypt.encrypt(data);
+}
+
+function aesEncrypt(data: string, key: string) {
+    const keyBytes = CryptoJS.enc.Utf8.parse(key);
+    const iv = CryptoJS.lib.WordArray.random(16);
+    const encrypted = CryptoJS.AES.encrypt(data, keyBytes, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+    });
+    return iv.toString(CryptoJS.enc.Base64) + ':' + encrypted.toString();
+}
+
+function urlDecode(value: string): string {
+    return decodeURIComponent(value.replace(/\+/g, ' '));
+}
+
+function generateAESKey(): string {
+    const keyLength = 16;
+    const randomBytes = new Uint8Array(keyLength);
+    crypto.getRandomValues(randomBytes);
+    return Array.from(randomBytes)
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+function encryptPassword(password: string, rsaPublicKeyText: string){
+    if (!password) {
+        return '';
+    }
+    if (!rsaPublicKeyText) {
+        console.log('RSA public key not found');
+        return password;
+    }
+    rsaPublicKeyText = urlDecode(rsaPublicKeyText);
+
+    const aesKey = generateAESKey();
+    rsaPublicKeyText = rsaPublicKeyText.replaceAll('"', '');
+    const rsaPublicKey = atob(rsaPublicKeyText);
+    const keyCipher = rsaEncrypt(aesKey, rsaPublicKey);
+    const passwordCipher = aesEncrypt(password, aesKey);
+    return `${keyCipher}:${passwordCipher}`;
+}
 interface LoginResponse {
   code: number
   message?: string
@@ -27,6 +79,10 @@ export async function getHostSessionId(hostId: string, useCache = true): Promise
   // 构建登录地址
   const loginUrl = `${host.url}/api/v1/auth/login`
 
+  let hostPassword = host.password;
+  if (host.publicKey) {
+    hostPassword = encryptPassword(host.password!, host.publicKey!); 
+  }
   // 发送登录请求
   const loginResponse = await fetch(loginUrl, {
     method: "POST",
@@ -36,7 +92,7 @@ export async function getHostSessionId(hostId: string, useCache = true): Promise
     },
     body: JSON.stringify({
       name: host.username,
-      password: host.password,
+      password: hostPassword,
       ignoreCaptcha: true,
       captcha: "",
       captchaID: Math.random().toString(36).substring(7),
