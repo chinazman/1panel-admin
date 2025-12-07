@@ -25,6 +25,7 @@ model Host {
   entranceCode String
   username  String
   password  String
+  publicKey String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   users     HostUser[]
@@ -39,4 +40,4 @@ model HostUser {
   createdAt DateTime @default(now())
 
   @@unique([userId, hostId])
-} 
+}

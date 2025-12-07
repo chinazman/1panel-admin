@@ -29,6 +29,7 @@ export default async function EditHostPage({ params }: Props) {
       url: true,
       entranceCode: true,
       username: true,
+      publicKey: true,
     },
   })
 
@@ -39,7 +40,7 @@ export default async function EditHostPage({ params }: Props) {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-bold">编辑主机</h1>
-      <HostForm host={host} />
+      <HostForm host={{...host, publicKey: host.publicKey || undefined}} />
     </div>
   )
 } 

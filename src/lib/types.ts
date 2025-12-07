@@ -15,6 +15,7 @@ export interface Host {
   entranceCode: string
   username: string
   password?: string
+  publicKey?: string
   createdAt?: Date
   updatedAt?: Date
 }

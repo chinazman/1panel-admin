@@ -12,6 +12,7 @@ const hostSchema = z.object({
   entranceCode: z.string().min(1, "安全入口不能为空"),
   username: z.string().min(1, "用户名不能为空"),
   password: z.string().min(1, "密码不能为空"),
+  publicKey: z.string().optional(),
 })
 
 export async function POST(req: Request) {
@@ -44,6 +45,7 @@ export async function POST(req: Request) {
         entranceCode: data.entranceCode,
         username: data.username,
         password: data.password,
+        publicKey: data.publicKey,
       },
     })
 
